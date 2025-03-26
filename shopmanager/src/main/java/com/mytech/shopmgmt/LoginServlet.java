@@ -4,6 +4,7 @@ import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -48,8 +49,23 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("user", username);
 
             // Chuyển hướng đến trang dashboard.jsp bằng forward
+//            RequestDispatcher dispatcher = request.getRequestDispatcher("dashboard.jsp");
+//            dispatcher.forward(request, response);
+            Cookie ckUsername = new Cookie("username", username);
+            Cookie ckLoginDate = new Cookie("loginDate", String.valueOf(System.currentTimeMillis()));
+
+            // Thiết lập thời gian sống cho cookie (1 ngày = 86400 giây)
+            ckUsername.setMaxAge(86400);
+            ckLoginDate.setMaxAge(86400);
+
+            // Thêm cookie vào response
+            response.addCookie(ckUsername);
+            response.addCookie(ckLoginDate);
+
+            // Chuyển hướng đến dashboard.jsp bằng forward
             RequestDispatcher dispatcher = request.getRequestDispatcher("dashboard.jsp");
             dispatcher.forward(request, response);
+
         } else {
             // Nếu sai, quay lại login.jsp và hiển thị thông báo lỗi
             request.setAttribute("error", "Sai tên đăng nhập hoặc mật khẩu!");
