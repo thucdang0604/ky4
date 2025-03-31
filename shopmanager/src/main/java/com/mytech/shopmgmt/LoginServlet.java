@@ -11,9 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
-/**
- * Servlet implementation class LoginServlet
- */
 @WebServlet("/Login")
 public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -34,7 +31,6 @@ public class LoginServlet extends HttpServlet {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
-        // Kiểm tra nếu username hoặc password bị null hoặc rỗng
         if (username == null || password == null || username.trim().isEmpty() || password.trim().isEmpty()) {
             request.setAttribute("error", "Vui lòng nhập tên đăng nhập và mật khẩu!");
             RequestDispatcher dispatcher = request.getRequestDispatcher("login.jsp");
@@ -42,32 +38,26 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        // Kiểm tra đăng nhập (username: admin, password: 123456)
-        if ("admin".equals(username) && "123456".equals(password)) {
-            // Tạo session và lưu thông tin đăng nhập
+        if ("admin".equals(username) && "123".equals(password)) {
+            // Lưu thông tin vào session
             HttpSession session = request.getSession();
-            session.setAttribute("user", username);
+            session.setAttribute("username", username); // Đặt lại đúng tên session
+            session.setAttribute("loginDate", System.currentTimeMillis());
 
-            // Chuyển hướng đến trang dashboard.jsp bằng forward
-//            RequestDispatcher dispatcher = request.getRequestDispatcher("dashboard.jsp");
-//            dispatcher.forward(request, response);
+            // Tạo cookie
             Cookie ckUsername = new Cookie("username", username);
             Cookie ckLoginDate = new Cookie("loginDate", String.valueOf(System.currentTimeMillis()));
 
-            // Thiết lập thời gian sống cho cookie (1 ngày = 86400 giây)
             ckUsername.setMaxAge(86400);
             ckLoginDate.setMaxAge(86400);
 
-            // Thêm cookie vào response
             response.addCookie(ckUsername);
             response.addCookie(ckLoginDate);
 
-            // Chuyển hướng đến dashboard.jsp bằng forward
-            RequestDispatcher dispatcher = request.getRequestDispatcher("dashboard.jsp");
-            dispatcher.forward(request, response);
+            // Chuyển hướng đến DashBoardServlet để lấy dữ liệu từ session & cookie
+            response.sendRedirect("DashBoard");
 
         } else {
-            // Nếu sai, quay lại login.jsp và hiển thị thông báo lỗi
             request.setAttribute("error", "Sai tên đăng nhập hoặc mật khẩu!");
             RequestDispatcher dispatcher = request.getRequestDispatcher("login.jsp");
             dispatcher.forward(request, response);
